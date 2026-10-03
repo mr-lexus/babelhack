@@ -1,0 +1,23 @@
+node_modules/
+dist/
+target/
+src-tauri/target/
+*.log
+.DS_Store
+/.vscode
+
+artifacts/
+test-results/
+playwright-report/
+.playwright-mcp/
+
+# Local credentials and private profiles
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+/config.json
+/sessions/
+/src-tauri/config.json

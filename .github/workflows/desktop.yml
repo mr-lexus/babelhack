@@ -1,0 +1,130 @@
+name: Desktop builds
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Create a draft release after all checks and builds pass
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+jobs:
+  frontend:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm test
+      - run: npm audit --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frontend-test-results
+          path: |
+            test-results
+            artifacts/test-report
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            target: x86_64-pc-windows-msvc
+            platform: windows-x64
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            platform: macos-arm64
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            platform: macos-x64
+          - runner: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            platform: linux-x64
+          - runner: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+            platform: linux-arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "14.6"
+      APPIMAGE_EXTRACT_AND_RUN: "1"
+      CARGO_INCREMENTAL: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux build and test dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev librsvg2-dev libasound2-dev libdbus-1-dev libayatana-appindicator3-dev patchelf rpm pulseaudio pulseaudio-utils dbus-x11 gnome-keyring xvfb
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+      - run: npm ci
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+      - run: cargo test --locked --manifest-path src-tauri/Cargo.toml --lib
+      - name: Linux audio monitor capture
+        if: runner.os == 'Linux'
+        run: bash scripts/test-linux-loopback.sh
+      - name: Linux Secret Service round trip
+        if: runner.os == 'Linux'
+        run: |
+          dbus-run-session -- bash -e -c '
+            printf "test-only-password" | gnome-keyring-daemon --unlock --components=secrets
+            cargo test --locked --manifest-path src-tauri/Cargo.toml --lib keyring_round_trip -- --ignored
+          '
+      - name: Build native packages
+        run: npm run build:desktop -- --target ${{ matrix.target }}
+      - name: Collect and validate release assets
+        run: python scripts/collect-release.py ${{ matrix.target }} ${{ matrix.platform }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.platform }}
+          if-no-files-found: error
+          path: artifacts/packages/*
+          retention-days: 14
+  release:
+    if: github.event_name == 'workflow_dispatch' && inputs.release && github.ref == 'refs/heads/main'
+    needs: [frontend, desktop]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: packages-*
+          merge-multiple: true
+          path: artifacts/packages
+      - name: Create checksums and draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/verify-release.py
+          version=$(python -c 'import json; print(json.load(open("package.json"))["version"])')
+          gh release create "v$version" artifacts/packages/* --target "$GITHUB_SHA" --draft --title "Babel Hack $version" --notes-file "docs/releases/$version.md"

@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "message": "continue",
+  "cooldown_ms": 2000,
+  "max_consecutive": 50
+}

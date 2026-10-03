@@ -1,0 +1,13 @@
+Babel Hack third-party adaptations
+
+The CoreFoundation aggregate dictionary helper in src/macos_tap.rs is adapted
+from RustAudio CPAL 0.18.1 (Apache-2.0). Copyright CPAL contributors.
+Source: https://github.com/RustAudio/cpal
+Changes: explicit output process tap for duplex devices, RAII cleanup on errors,
+stable UID aggregate discovery, aggregate private-device key.
+License: CPAL-APACHE-2.0.txt
+
+vendor/glib is the published gtk-rs glib 0.18.5 source (MIT), with a two-line
+backport of https://github.com/gtk-rs/gtk-rs-core/pull/1343.
+Copyright gtk-rs Project contributors. License: GLIB-MIT.txt.
+The backport uses a mutable output pointer in VariantStrIter::impl_get.

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "targets": ["deb", "rpm", "appimage"],
+    "linux": {
+      "deb": { "depends": ["libdbus-1-3", "libasound2", "libxdo3", "libayatana-appindicator3-1"] },
+      "rpm": { "depends": ["dbus-libs", "alsa-lib", "libxdo", "libappindicator-gtk3"] },
+      "appimage": { "bundleMediaFramework": true }
+    }
+  }
+}

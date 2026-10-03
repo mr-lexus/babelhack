@@ -1,0 +1,51 @@
+# AI Rules for Interview Translator
+
+## Project Facts
+
+- **Stack**: Tauri 2 (Rust) + React 18 (Vite) + TypeScript
+- **Target**: Windows desktop app (`x86_64-pc-windows-gnu`)
+- **Dev environment**: WSL accessing Windows filesystem via `/mnt/c/`
+- **Build must run through Windows** (`cmd.exe` or PowerShell), not Linux cargo
+
+## Critical Build Notes
+
+- `src-tauri/.cargo/config.toml` forces `x86_64-pc-windows-gnu` target with MSYS2 gcc linker
+- MSYS2 must be at `C:\msys64` — `dlltool.exe` and `gcc.exe` needed during compilation
+- `run_tauri.cmd` sets PATH to include `C:\msys64\mingw64\bin`
+- `crate-type = ["staticlib", "rlib"]` — do NOT add `cdylib` (linker error)
+- After changing Rust code, must rebuild from Windows: `npm run tauri dev`
+- After changing React/Vite code only, hot-reload works via Vite dev server
+
+## Code Patterns
+
+### Overlay Text Model
+- Backend `OverlayState` is the source of truth for `current` text
+- Frontend MUST NOT accumulate via delta (`prev + delta`) — use `current` field directly
+- `lines` array only grows (finalized translations), never shrinks
+- When `is_final=true`, backend moves `current` to `lines` and clears `current`
+
+### Window Management
+- Overlay created hidden in `lib.rs::setup`, shown on `start_session`
+- Requires `core:window:allow-start-dragging` permission for `win.startDragging()`
+- Geometry auto-saved via `save_overlay_geometry` command (400ms debounce)
+- `Ctrl+Alt+T` global hotkey toggles overlay visibility
+
+### State Updates (Frontend)
+- Use functional `setState` with reference check to avoid unnecessary re-renders
+- `setLines(prev => same ? prev : newLines)` — return old ref if unchanged
+- `setCurrent(newCurrent)` — always replace, never append
+- Memoized components for text lines prevent DOM updates when props unchanged
+
+### Config
+- Stored at `%APPDATA%/interview-translator/config.json`
+- `#[serde(default)]` on Config struct — new fields get defaults automatically
+- Frontend reads via `invoke("get_config")`, writes via `invoke("set_config")`
+- Overlay colors use hex strings, converted to rgba in Overlay.tsx
+
+## Do NOT
+
+- Do not run `cargo build` from WSL directly — it targets Windows, needs Windows linker
+- Do not add `cdylib` to crate-type
+- Do not accumulate text via `prev + delta` in frontend
+- Do not remove `core:window:allow-start-dragging` from capabilities
+- Do not use `data-tauri-drag-region` attribute on overlay — use React `onMouseDown` + `startDragging()` instead (conflicts with pointer events on transparent windows)
