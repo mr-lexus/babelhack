@@ -2,7 +2,21 @@ name: Desktop builds
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - website/**
+      - website-tests/**
+      - playwright.website.config.ts
+      - scripts/serve-website.mjs
+      - .github/workflows/website.yml
+      - docs/WEBSITE.md
   pull_request:
+    paths-ignore:
+      - website/**
+      - website-tests/**
+      - playwright.website.config.ts
+      - scripts/serve-website.mjs
+      - .github/workflows/website.yml
+      - docs/WEBSITE.md
   workflow_dispatch:
     inputs:
       release:

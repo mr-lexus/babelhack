@@ -6,7 +6,7 @@
 
 Babel Hack переводит системный звук из звонков, видео и лекций и показывает оригинал и перевод в настраиваемом оверлее. Windows, macOS Intel / Apple Silicon, Linux x64 / ARM64. Tauri 2 · Rust · React.
 
-[Скачать](https://github.com/mr-lexus/babelhack/releases/latest) · [Сборки и проверки](https://github.com/mr-lexus/babelhack/actions/workflows/desktop.yml) · [История изменений](CHANGELOG.md) · [Сообщить о проблеме](https://github.com/mr-lexus/babelhack/issues)
+[Сайт](https://mr-lexus.github.io/babelhack/) · [Скачать](https://github.com/mr-lexus/babelhack/releases/latest) · [Сборки и проверки](https://github.com/mr-lexus/babelhack/actions/workflows/desktop.yml) · [История изменений](CHANGELOG.md) · [Сообщить о проблеме](https://github.com/mr-lexus/babelhack/issues)
 
 ![Babel Hack: демонстрационный перевод](docs/images/babelhack-demo.png)
 
@@ -94,6 +94,7 @@ CI запускает браузерные тесты, Rust-тесты и нат
 - [Архитектура](ARCHITECTURE.md), [потоковый перевод](docs/LIVE_TRANSLATION.md), [системный трей](docs/TRAY.md).
 - [Платформы](docs/PLATFORMS.md), [выпуск релиза](docs/RELEASING.md), [участие в разработке](CONTRIBUTING.md).
 - [Безопасность](SECURITY.md), [аудит](docs/AUDIT.md), [исследование аналогов](docs/COMPETITORS.md).
+- [Лендинг: разработка, изображения и публикация](docs/WEBSITE.md).
 - `docs/legacy/` — архив прежней реализации, не инструкция к текущему выпуску.
 
 ## Лицензия

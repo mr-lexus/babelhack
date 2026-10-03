@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101114" />
+    <title>Babel Hack — живой перевод поверх ваших окон</title>
+    <meta
+      name="description"
+      content="Переводите системный звук из звонков, видео и лекций. Субтитры поверх окон, локальная история и ваши API-ключи. Бесплатное приложение для Windows, macOS и Linux с открытым кодом."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Babel Hack" />
+    <meta
+      property="og:title"
+      content="Babel Hack — слышать мир. Понимать больше."
+    />
+    <meta
+      property="og:description"
+      content="Живой перевод системного звука в отдельном оверлее. Windows, macOS, Linux. Открытый код, ваши API-ключи."
+    />
+    <meta property="og:url" content="https://mr-lexus.github.io/babelhack/" />
+    <link rel="canonical" href="https://mr-lexus.github.io/babelhack/" />
+    <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="assets/onest-cyrillic.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#" aria-label="Babel Hack — в начало"
+          ><img src="assets/app-icon.svg" width="32" height="32" alt="" /><span
+            >babel<span class="brand-hack">hack</span></span
+          ></a
+        >
+        <nav class="main-nav" aria-label="Основная навигация">
+          <a href="#product">Возможности</a><a href="#start">Как начать</a
+          ><a href="https://github.com/mr-lexus/babelhack"
+            >GitHub <span aria-hidden="true">↗</span></a
+          >
+        </nav>
+        <a class="button button-small button-outline" href="#download"
+          >Скачать <span aria-hidden="true">↓</span></a
+        >
+      </div>
+    </header>
+    <main id="main">
+      <section class="hero container" aria-labelledby="hero-title">
+        <div class="eyebrow">
+          <span class="signal-dot" aria-hidden="true"></span> ЖИВОЙ ПЕРЕВОД.
+          ОТКРЫТЫЙ КОД.
+        </div>
+        <div class="hero-copy">
+          <h1 id="hero-title">
+            Слышать мир.<br /><span>Понимать больше.</span>
+          </h1>
+          <div class="hero-description">
+            <p>
+              Звонок, лекция или видео —<br class="desktop-break" />
+              перевод прямо перед глазами.
+            </p>
+            <p class="muted">
+              Babel Hack слушает системный звук и показывает субтитры поверх
+              ваших окон.
+            </p>
+            <a class="button button-primary" href="#download"
+              >Скачать Babel Hack <span aria-hidden="true">↘</span></a
+            ><span class="hero-note">Windows · macOS · Linux</span>
+          </div>
+        </div>
+        <figure class="hero-figure">
+          <div class="desktop-scene">
+            <img
+              class="landscape"
+              src="assets/fjord.png"
+              width="1672"
+              height="941"
+              alt="Горный фьорд на закате — иллюстративный фон для демонстрации оверлея"
+              fetchpriority="high"
+            />
+            <div class="scene-top" aria-hidden="true">
+              <span class="scene-label">МЕНЬШЕ ЯЗЫКОВЫХ БАРЬЕРОВ</span
+              ><span class="scene-chip">EN <span>→</span> RU</span>
+            </div>
+            <div class="scene-wordmark" aria-hidden="true">
+              Stay in the<br /><em>conversation.</em>
+            </div>
+            <button
+              class="overlay-shot screenshot-button"
+              data-lightbox="assets/app-overlay.png"
+              data-caption="Окно субтитров · Babel Hack 0.7.0 · Windows · демо EN → RU"
+              aria-label="Увеличить скриншот окна субтитров"
+            >
+              <img
+                src="assets/app-overlay.png"
+                width="1140"
+                height="345"
+                alt="Настоящий оверлей Babel Hack: «Спасибо, что присоединились. Расскажите немного о себе.» и оригинал на английском"
+              /><span class="zoom-hint" aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <figcaption>
+            <span
+              ><span class="tiny-dot" aria-hidden="true"></span> Настоящий
+              интерфейс · демо EN → RU</span
+            ><span>Windows, v0.7.0 · фон — иллюстрация</span>
+          </figcaption>
+        </figure>
+        <div class="hero-facts">
+          <p>
+            <span aria-hidden="true">01 /</span> Перевод из системного звука
+          </p>
+          <p>
+            <span aria-hidden="true">02 /</span> Ваши ключи Deepgram + OpenAI
+          </p>
+          <p>
+            <span aria-hidden="true">03 /</span> История на вашем компьютере
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="section container"
+        id="product"
+        aria-labelledby="product-title"
+      >
+        <div class="section-heading">
+          <p class="eyebrow">01 / В РИТМЕ РАЗГОВОРА</p>
+          <div>
+            <h2 id="product-title">
+              Следите за мыслью.<br /><span class="muted"
+                >Оставайтесь в контексте.</span
+              >
+            </h2>
+            <p class="section-intro">
+              Перевод рядом с тем, что вы смотрите и слушаете.<br
+                class="desktop-break"
+              />
+              Без постоянного переключения между окнами.
+            </p>
+          </div>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="4" y="5" width="24" height="20" rx="3" />
+              <path d="M4 11h24M10 17h12m-12 4h8M12 29h8" />
+            </svg>
+            <h3>Поверх ваших окон</h3>
+            <p>
+              Разместите субтитры там, где удобно читать. Настройте размер
+              текста, межстрочный интервал, цвета и показ оригинала.
+            </p>
+          </article>
+          <article>
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M5 11h14m-14 5h22M5 21h17M24 8l3 3-3 3" />
+            </svg>
+            <h3>Фраза обретает смысл</h3>
+            <p>
+              Перевод уточняется по мере речи. Незавершённая фраза остаётся
+              черновиком, подтверждённые фразы переходят в историю.
+            </p>
+          </article>
+          <article>
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M7 8a12 12 0 1 1-3 12M3 5v7h7M16 8v9l5 3" />
+            </svg>
+            <h3>Есть к чему вернуться</h3>
+            <p>
+              Ищите по оригиналу и переводу, копируйте фрагменты и экспортируйте
+              разговор в TXT, Markdown или JSON.
+            </p>
+          </article>
+        </div>
+        <div class="workspace">
+          <div class="workspace-top">
+            <div
+              class="gallery-tabs"
+              role="group"
+              aria-label="Скриншоты приложения"
+            >
+              <button
+                type="button"
+                class="gallery-tab active"
+                data-gallery="session"
+                aria-pressed="true"
+              >
+                Живой перевод</button
+              ><button
+                type="button"
+                class="gallery-tab"
+                data-gallery="settings"
+                aria-pressed="false"
+              >
+                Настройки
+              </button>
+            </div>
+            <span class="workspace-version">BABEL HACK / 0.7.0</span>
+          </div>
+          <button
+            class="workspace-shot screenshot-button"
+            data-lightbox="assets/app-session.png"
+            data-caption="Живой перевод · Babel Hack 0.7.0 · Windows · демонстрационная сессия"
+            aria-label="Увеличить скриншот приложения"
+          >
+            <img
+              id="workspace-image"
+              src="assets/app-session.png"
+              width="1770"
+              height="1290"
+              alt="Главное окно Babel Hack: оригинал, перевод и лента разговора в демонстрационной сессии"
+              loading="lazy"
+            /><span class="zoom-hint" aria-hidden="true">Развернуть ↗</span>
+          </button>
+          <div class="workspace-caption">
+            <p id="gallery-description" aria-live="polite">
+              Оригинал, перевод и лента разговора — в одном рабочем
+              пространстве.
+            </p>
+            <span>Скриншоты Windows · демо</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <p>
+            <span class="detail-plus" aria-hidden="true">+</span
+            ><strong>Свой словарь</strong
+            ><span
+              >Добавьте термины, имена и названия для контекста перевода.</span
+            >
+          </p>
+          <p>
+            <span class="detail-plus" aria-hidden="true">+</span
+            ><strong>Управление из трея</strong
+            ><span
+              >Скройте главное окно. Пауза и субтитры останутся под рукой.</span
+            >
+          </p>
+        </div>
+      </section>
+
+      <section class="start-section" id="start" aria-labelledby="start-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">02 / ПРОСТО НАЧАТЬ</p>
+            <div>
+              <h2 id="start-title">Ваш звук.<br />Ваши ключи. Ваш перевод.</h2>
+              <p class="section-intro">
+                Сначала попробуйте встроенное демо без ключей.<br
+                  class="desktop-break"
+                />
+                Для живого перевода подключите свои API-аккаунты.
+              </p>
+            </div>
+          </div>
+          <ol class="steps">
+            <li>
+              <span class="step-number">01</span>
+              <h3>Установите приложение</h3>
+              <p>
+                Выберите сборку для своего компьютера. Откройте Babel Hack и
+                нажмите «Демо», чтобы познакомиться с интерфейсом.
+              </p>
+            </li>
+            <li>
+              <span class="step-number">02</span>
+              <h3>Подключите сервисы</h3>
+              <p>
+                Добавьте ключи Deepgram и OpenAI в настройках. Укажите язык
+                речи, язык перевода и нужный аудиовыход.
+              </p>
+            </li>
+            <li>
+              <span class="step-number">03</span>
+              <h3>Включите перевод</h3>
+              <p>
+                Запустите видео или звонок и нажмите «Начать перевод». Откройте
+                окно субтитров и расположите его как удобно.
+              </p>
+            </li>
+          </ol>
+          <div class="cost-note">
+            <span aria-hidden="true">↗</span>
+            <p>
+              <strong>Приложение бесплатное. API оплачиваются отдельно.</strong>
+              Распознавание и перевод расходуют баланс ваших аккаунтов Deepgram
+              и OpenAI. Подписка ChatGPT не включает OpenAI API.
+            </p>
+            <a href="https://github.com/mr-lexus/babelhack#первый-запуск"
+              >Инструкция <span aria-hidden="true">↗</span></a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="section container transparency"
+        aria-labelledby="transparency-title"
+      >
+        <div>
+          <p class="eyebrow">03 / ПОНЯТНО, КАК УСТРОЕНО</p>
+          <h2 id="transparency-title">Без чёрного ящика.</h2>
+          <p class="section-intro">
+            Открытый исходный код и прозрачный маршрут данных. Вы знаете, куда
+            отправляется звук и где остаётся история.
+          </p>
+          <a class="text-link" href="https://github.com/mr-lexus/babelhack"
+            >Посмотреть исходники <span aria-hidden="true">↗</span></a
+          >
+        </div>
+        <div class="data-path">
+          <div>
+            <span class="path-index">01</span>
+            <p>
+              <strong>Системный звук → Deepgram</strong
+              ><span
+                >Потоковое распознавание речи. Приложение не сохраняет
+                аудиофайлы.</span
+              >
+            </p>
+          </div>
+          <div>
+            <span class="path-index">02</span>
+            <p>
+              <strong>Текст и контекст → OpenAI</strong
+              ><span>Перевод с учётом предыдущих фраз и вашего словаря.</span>
+            </p>
+          </div>
+          <div>
+            <span class="path-index">03</span>
+            <p>
+              <strong>История → ваш компьютер</strong
+              ><span
+                >Хранится локально в незашифрованном виде. API-ключи — в
+                системном хранилище.</span
+              >
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="download-section"
+        id="download"
+        aria-labelledby="download-title"
+      >
+        <div class="container download-layout">
+          <div class="download-copy">
+            <p class="eyebrow">
+              <span class="signal-dot" aria-hidden="true"></span> BABEL HACK /
+              v0.7.0
+            </p>
+            <h2 id="download-title">
+              Больше смысла.<br /><span>Меньше барьеров.</span>
+            </h2>
+            <p>Установите Babel Hack.<br />Первый шаг — нажать «Демо».</p>
+            <p class="download-license">
+              Бесплатное приложение · Apache 2.0<br />Для живого перевода нужны
+              платные API-аккаунты.
+            </p>
+            <a
+              class="text-link"
+              href="https://github.com/mr-lexus/babelhack/releases/tag/v0.7.0"
+              >Что нового в 0.7.0 <span aria-hidden="true">↗</span></a
+            >
+          </div>
+          <div class="download-box">
+            <div
+              class="platform-tabs"
+              role="tablist"
+              aria-label="Выберите операционную систему"
+            >
+              <button
+                type="button"
+                id="tab-windows"
+                role="tab"
+                aria-selected="true"
+                aria-controls="panel-windows"
+                data-platform="windows"
+              >
+                Windows</button
+              ><button
+                type="button"
+                id="tab-macos"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-macos"
+                data-platform="macos"
+                tabindex="-1"
+              >
+                macOS</button
+              ><button
+                type="button"
+                id="tab-linux"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-linux"
+                data-platform="linux"
+                tabindex="-1"
+              >
+                Linux
+              </button>
+            </div>
+            <section
+              id="panel-windows"
+              class="download-panel"
+              role="tabpanel"
+              aria-labelledby="tab-windows"
+              tabindex="0"
+            >
+              <div class="system-heading">
+                <svg viewBox="0 0 32 32" aria-hidden="true">
+                  <path
+                    d="M3 5l11-1.5v11H3zm13-2L29 1v13.5H16zM3 17h11v11L3 26.5zm13 0h13v14l-13-2z"
+                  />
+                </svg>
+                <div>
+                  <h3>Windows</h3>
+                  <p>Windows 10 / 11 · x64</p>
+                </div>
+              </div>
+              <a
+                class="button button-primary download-link"
+                data-asset="windows-x64-setup.exe"
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-windows-x64-setup.exe"
+                >Скачать установщик .exe <span aria-hidden="true">↓</span></a
+              ><a
+                class="secondary-download"
+                data-asset="windows-x64.exe"
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-windows-x64.exe"
+                >Или отдельный .exe без установщика ↗</a
+              >
+              <p class="requirements">
+                Нужен WebView2 Runtime. Сборка без Authenticode-подписи: Windows
+                может показать предупреждение о неизвестном издателе.
+              </p>
+            </section>
+            <section
+              id="panel-macos"
+              class="download-panel"
+              role="tabpanel"
+              aria-labelledby="tab-macos"
+              tabindex="0"
+            >
+              <div class="system-heading">
+                <span class="system-symbol" aria-hidden="true">⌘</span>
+                <div>
+                  <h3>macOS</h3>
+                  <p>macOS 14.6 и новее</p>
+                </div>
+              </div>
+              <label class="select-label" for="mac-arch"
+                >Процессор вашего Mac</label
+              ><select id="mac-arch">
+                <option value="arm64">
+                  Apple Silicon — M1, M2, M3, M4 и новее
+                </option>
+                <option value="x64">Intel</option></select
+              ><a
+                id="mac-download"
+                class="button button-primary download-link"
+                data-asset="macos-arm64.dmg"
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-macos-arm64.dmg"
+                >Скачать .dmg · Apple Silicon
+                <span aria-hidden="true">↓</span></a
+              ><a
+                id="mac-zip"
+                class="secondary-download"
+                data-asset="macos-arm64.app.zip"
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-macos-arm64.app.zip"
+                >Или архив приложения .zip ↗</a
+              >
+              <p class="requirements">
+                Тип процессора указан в «Об этом Mac». Нужен доступ к системному
+                аудио. Оверлей непрозрачный. Сборка без Apple notarization —
+                возможны предупреждения при открытии.
+              </p>
+            </section>
+            <section
+              id="panel-linux"
+              class="download-panel"
+              role="tabpanel"
+              aria-labelledby="tab-linux"
+              tabindex="0"
+            >
+              <div class="system-heading">
+                <span class="system-symbol linux-symbol" aria-hidden="true"
+                  >&gt;_</span
+                >
+                <div>
+                  <h3>Linux</h3>
+                  <p>x64 и ARM64 · desktop</p>
+                </div>
+              </div>
+              <div class="download-selects">
+                <div>
+                  <label class="select-label" for="linux-arch"
+                    >Архитектура</label
+                  ><select id="linux-arch">
+                    <option value="x64">x64 (Intel / AMD)</option>
+                    <option value="arm64">ARM64</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="select-label" for="linux-format"
+                    >Формат пакета</label
+                  ><select id="linux-format">
+                    <option value="deb">.deb</option>
+                    <option value="rpm">.rpm</option>
+                    <option value="AppImage">.AppImage</option>
+                  </select>
+                </div>
+              </div>
+              <a
+                id="linux-download"
+                class="button button-primary download-link"
+                data-asset="linux-x64.deb"
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-linux-x64.deb"
+                >Скачать .deb · x64 <span aria-hidden="true">↓</span></a
+              >
+              <p class="requirements">
+                Нужны WebKitGTK 4.1, PulseAudio или pipewire-pulse и Secret
+                Service. Пакеты собраны на Ubuntu 22.04. В Wayland поведение
+                оверлея зависит от оконного менеджера.
+              </p>
+            </section>
+            <noscript
+              ><p class="no-script">
+                Для выбора архитектуры без JavaScript откройте
+                <a
+                  href="https://github.com/mr-lexus/babelhack/releases/tag/v0.7.0"
+                  >все сборки на GitHub</a
+                >.
+              </p></noscript
+            >
+            <div class="download-footer">
+              <a
+                href="https://github.com/mr-lexus/babelhack/blob/main/docs/PLATFORMS.md"
+                >Установка и требования ↗</a
+              ><a
+                href="https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/SHA256SUMS.txt"
+                >SHA256 ↗</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section container faq" aria-labelledby="faq-title">
+        <div>
+          <p class="eyebrow">04 / ПЕРЕД ПЕРВЫМ ЗАПУСКОМ</p>
+          <h2 id="faq-title">
+            Есть вопросы.<br /><span class="muted">Есть ответы.</span>
+          </h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Перевод действительно синхронный?</summary>
+            <p>
+              Он появляется во время речи, с задержкой на распознавание и
+              перевод. Задержка зависит от сети, сервисов и длины фразы. Текущая
+              фраза может уточняться. Babel Hack не обещает мгновенный или
+              безошибочный перевод.
+            </p>
+          </details>
+          <details>
+            <summary>Работает с любым видео и звонком?</summary>
+            <p>
+              Приложение захватывает выбранный системный аудиовыход, поэтому
+              может переводить звук браузера и других программ. Сейчас нельзя
+              выбрать отдельное приложение, захватить микрофон или переводить
+              разговор в обе стороны. Другие звуки на том же выходе тоже попадут
+              в распознавание.
+            </p>
+          </details>
+          <details>
+            <summary>Какие языки доступны?</summary>
+            <p>
+              В настройках есть английский, русский, украинский, немецкий,
+              французский, испанский, португальский, итальянский, нидерландский,
+              польский, румынский, японский, корейский и китайский. Доступность
+              распознавания зависит от выбранной модели Deepgram. Интерфейс
+              приложения пока на русском, встроенное демо — EN → RU.
+            </p>
+          </details>
+          <details>
+            <summary>Можно пользоваться без интернета?</summary>
+            <p>
+              Живой перевод требует подключения к Deepgram и OpenAI. Без ключей
+              и API-запросов можно посмотреть встроенное демо. Локально
+              сохранённая история доступна без сервисов.
+            </p>
+          </details>
+          <details>
+            <summary>Кто получает мои данные?</summary>
+            <p>
+              Deepgram получает звук. OpenAI — распознанный текст, контекст и
+              словарь терминов. Аудиофайлы приложение не сохраняет. История
+              хранится на вашем компьютере без шифрования со стороны приложения;
+              её сохранение можно отключить. Ключи находятся в Credential
+              Manager, Keychain или Secret Service.
+              <a
+                href="https://github.com/mr-lexus/babelhack/blob/main/SECURITY.md"
+                >Подробнее о безопасности ↗</a
+              >
+            </p>
+          </details>
+          <details>
+            <summary>Насколько готовы сборки для разных ОС?</summary>
+            <p>
+              Сборки и автоматические проверки выполняются для всех пяти целей.
+              Windows дополнительно проверен запуском нативного интерфейса; на
+              Linux есть тесты виртуального аудиовыхода. Это ещё не гарантия
+              совместимости с каждым устройством: захват звука и разрешения
+              macOS требуют проверки на реальных Mac.
+              <a href="https://github.com/mr-lexus/babelhack/issues"
+                >Если что-то не работает, сообщите об этом ↗</a
+              >.
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer container">
+      <div class="footer-top">
+        <a class="brand" href="#" aria-label="Babel Hack — в начало"
+          ><img src="assets/app-icon.svg" width="32" height="32" alt="" /><span
+            >babel<span class="brand-hack">hack</span></span
+          ></a
+        >
+        <p>Меньше языковых барьеров.<br />Больше понимания.</p>
+        <nav aria-label="Ссылки проекта">
+          <a href="https://github.com/mr-lexus/babelhack">GitHub ↗</a
+          ><a href="https://github.com/mr-lexus/babelhack/issues"
+            >Обратная связь ↗</a
+          ><a href="https://github.com/mr-lexus/babelhack#документация"
+            >Документация ↗</a
+          >
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 mr-lexus и участники Babel Hack</span
+        ><a href="https://github.com/mr-lexus/babelhack/blob/main/LICENSE"
+          >Apache License 2.0</a
+        ><span>Сделано, чтобы понимать.</span>
+      </div>
+    </footer>
+    <dialog id="screenshot-dialog" aria-labelledby="screenshot-caption">
+      <button type="button" class="dialog-close" aria-label="Закрыть скриншот">
+        Закрыть <span aria-hidden="true">×</span>
+      </button>
+      <figure>
+        <img id="screenshot-full" alt="" />
+        <figcaption id="screenshot-caption"></figcaption>
+      </figure>
+    </dialog>
+  </body>
+</html>
