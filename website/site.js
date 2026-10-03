@@ -86,7 +86,7 @@ const gallery = {
     description:
       "Подключения, языки, словарь и оформление — под ваш рабочий процесс.",
     caption:
-      "Настройки · Babel Hack 0.7.0 · Windows · тестовый профиль без API-ключей",
+      "Настройки · Babel Hack 0.7.0 · Windows · ключи не отображаются в интерфейсе",
   },
 };
 document.querySelectorAll("[data-gallery]").forEach((button) =>
