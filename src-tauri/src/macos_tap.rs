@@ -93,7 +93,7 @@ pub fn create(host: &cpal::Host, output: &cpal::Device) -> anyhow::Result<(cpal:
     let id = cpal::DeviceId::new(cpal::HostId::CoreAudio, aggregate_uid);
     let device = host
         .device_by_id(&id)
-        .context("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ CoreAudio tap")?;
+        .context("Не удалось открыть CoreAudio tap")?;
     Ok((device, guard))
 }
 

@@ -39,17 +39,17 @@ impl AudioCapture {
         let device = linux_monitor(&host, &output)?;
         #[cfg(target_os = "macos")]
         let (device, tap) = super::macos_tap::create(&host, &output)
-            .context("РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°С…РІР°С‚РёС‚СЊ СЃРёСЃС‚РµРјРЅС‹Р№ Р·РІСѓРє macOS. Р Р°Р·СЂРµС€РёС‚Рµ Р·Р°РїРёСЃСЊ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕ РІ РЅР°СЃС‚СЂРѕР№РєР°С… РєРѕРЅС„РёРґРµРЅС†РёР°Р»СЊРЅРѕСЃС‚Рё Рё РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚Рµ РїСЂРёР»РѕР¶РµРЅРёРµ")?;
+            .context("Не удалось захватить системный звук macOS. Разрешите запись системного аудио в настройках конфиденциальности и перезапустите приложение")?;
         #[cfg(target_os = "windows")]
         let device = output;
         #[cfg(any(target_os = "linux", target_os = "macos"))]
-        let config = device.default_input_config().context(
-            "Р¤РѕСЂРјР°С‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕР·Р°С…РІР°С‚Р° РЅРµРґРѕСЃС‚СѓРїРµРЅ",
-        )?;
+        let config = device
+            .default_input_config()
+            .context("Формат системного аудиозахвата недоступен")?;
         #[cfg(target_os = "windows")]
-        let config = device.default_output_config().context(
-            "Р¤РѕСЂРјР°С‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕР·Р°С…РІР°С‚Р° РЅРµРґРѕСЃС‚СѓРїРµРЅ",
-        )?;
+        let config = device
+            .default_output_config()
+            .context("Формат системного аудиозахвата недоступен")?;
         let sample_rate = config.sample_rate() as f64;
         let channels = config.channels() as usize;
         let sample_format = config.sample_format();
@@ -93,11 +93,7 @@ impl AudioCapture {
             cpal::SampleFormat::U24 => capture!(cpal::U24),
             cpal::SampleFormat::U32 => capture!(u32),
             cpal::SampleFormat::U64 => capture!(u64),
-            other => {
-                return Err(anyhow!(
-                    "РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С„РѕСЂРјР°С‚ Р°СѓРґРёРѕ: {other:?}"
-                ))
-            }
+            other => return Err(anyhow!("Неподдерживаемый формат аудио: {other:?}")),
         };
 
         stream
@@ -128,7 +124,7 @@ fn capture_host() -> anyhow::Result<cpal::Host> {
     let id = cpal::HostId::CoreAudio;
     #[cfg(target_os = "windows")]
     let id = cpal::HostId::Wasapi;
-    cpal::host_from_id(id).context("РђСѓРґРёРѕСЃРµСЂРІРёСЃ РЅРµРґРѕСЃС‚СѓРїРµРЅ. РќР° Linux Р·Р°РїСѓСЃС‚РёС‚Рµ PulseAudio РёР»Рё PipeWire СЃ pipewire-pulse РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕР№ СЃРµСЃСЃРёРё")
+    cpal::host_from_id(id).context("Аудиосервис недоступен. На Linux запустите PulseAudio или PipeWire с pipewire-pulse в пользовательской сессии")
 }
 
 pub fn list_output_devices() -> anyhow::Result<Vec<OutputDevice>> {
@@ -156,10 +152,10 @@ fn selected_index(devices: &[OutputDevice], saved: &str) -> anyhow::Result<usize
     match matches.as_slice() {
         [(i, _)] => Ok(*i),
         [] => Err(anyhow!(
-            "Р’С‹Р±СЂР°РЅРЅРѕРµ Р°СѓРґРёРѕСѓСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµРґРѕСЃС‚СѓРїРЅРѕ. Р’С‹Р±РµСЂРёС‚Рµ РґСЂСѓРіРѕРµ РІ РЅР°СЃС‚СЂРѕР№РєР°С…."
+            "Выбранное аудиоустройство недоступно. Выберите другое в настройках."
         )),
         _ => Err(anyhow!(
-            "РќРµСЃРєРѕР»СЊРєРѕ СѓСЃС‚СЂРѕР№СЃС‚РІ РёРјРµСЋС‚ РѕРґРёРЅР°РєРѕРІРѕРµ РёРјСЏ. Р’С‹Р±РµСЂРёС‚Рµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Р·Р°РЅРѕРІРѕ."
+            "Несколько устройств имеют одинаковое имя. Выберите устройство заново."
         )),
     }
 }
@@ -168,7 +164,7 @@ fn resolve_output_device(host: &cpal::Host, saved: Option<&str>) -> anyhow::Resu
     let Some(saved) = saved else {
         return host
             .default_output_device()
-            .ok_or_else(|| anyhow!("РЈСЃС‚СЂРѕР№СЃС‚РІРѕ РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РЅРµРґРѕСЃС‚СѓРїРЅРѕ"));
+            .ok_or_else(|| anyhow!("Устройство воспроизведения по умолчанию недоступно"));
     };
     let devices: Vec<_> = host.output_devices()?.collect();
     let descriptors: anyhow::Result<Vec<_>> = devices
@@ -360,7 +356,9 @@ mod tests {
             while let Ok(bytes) = rx.try_recv() {
                 assert_eq!(bytes.len(), CHUNK_SAMPLES * 2);
                 audible |= bytes
-                    .chunks_exact(2)
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
                     .any(|s| i16::from_le_bytes([s[0], s[1]]).unsigned_abs() > 100);
             }
             if audible {
@@ -395,7 +393,12 @@ mod tests {
             }
             assert_eq!(av.len(), bv.len());
             // Floating point rounding may differ by one PCM unit.
-            for (a, b) in av.chunks_exact(2).zip(bv.chunks_exact(2)) {
+            for (a, b) in av
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .zip(bv.as_chunks::<2>().0.iter())
+            {
                 let x = i16::from_le_bytes([a[0], a[1]]) as i32;
                 let y = i16::from_le_bytes([b[0], b[1]]) as i32;
                 assert!((x - y).abs() <= 1);
