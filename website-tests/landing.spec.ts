@@ -126,12 +126,60 @@ test("responsive layouts have no horizontal overflow or WCAG A/AA violations", a
   }
 });
 
-test("download and FAQ remain usable without JavaScript", async ({
+test("sharing metadata, downloads and FAQ work without JavaScript", async ({
   browser,
 }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("http://127.0.0.1:1431/babelhack/");
+  const publicURL = "https://mr-lexus.github.io/babelhack/";
+  const imageURL = `${publicURL}assets/social-card-v1.png`;
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    publicURL,
+  );
+  for (const [property, value] of Object.entries({
+    "og:type": "website",
+    "og:url": publicURL,
+    "og:image": imageURL,
+    "og:image:type": "image/png",
+    "og:image:width": "1200",
+    "og:image:height": "630",
+  })) {
+    await expect(page.locator(`meta[property="${property}"]`)).toHaveAttribute(
+      "content",
+      value,
+    );
+  }
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary_large_image",
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    "content",
+    imageURL,
+  );
+  for (const field of ["title", "description", "image:alt"]) {
+    const value = await page
+      .locator(`meta[property="og:${field}"]`)
+      .getAttribute("content");
+    expect(value?.length).toBeGreaterThan(10);
+    await expect(page.locator(`meta[name="twitter:${field}"]`)).toHaveAttribute(
+      "content",
+      value!,
+    );
+  }
+  // Follow the published absolute path on the local server, like a crawler.
+  const imageResponse = await context.request.get(new URL(imageURL).pathname);
+  expect(imageResponse.status()).toBe(200);
+  expect(imageResponse.headers()["content-type"]).toBe("image/png");
+  const png = await imageResponse.body();
+  expect(png.subarray(0, 8)).toEqual(
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+  );
+  expect(png.readUInt32BE(16)).toBe(1200);
+  expect(png.readUInt32BE(20)).toBe(630);
+  expect(png.length).toBeLessThan(1_000_000);
   await expect(page.locator("#panel-windows")).toBeVisible();
   await expect(page.locator("#panel-macos")).toBeVisible();
   await expect(page.locator("#panel-linux")).toBeVisible();

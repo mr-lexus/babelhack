@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>Babel Hack — исходник карточки для ссылок</title>
+    <style>
+      @font-face {
+        font-family: Onest;
+        src: url("{{onest-cyrillic.woff2}}") format("woff2");
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: Onest;
+        src: url("{{onest-latin.woff2}}") format("woff2");
+        font-weight: 100 900;
+        unicode-range: U+0000-00FF;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #101114;
+        color: #f4f3f6;
+        font-family: Onest, sans-serif;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: radial-gradient(
+          ellipse at 25% 0%,
+          #242030 0,
+          transparent 55%
+        );
+      }
+      .brand {
+        position: absolute;
+        top: 49px;
+        left: 56px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 35px;
+        font-weight: 720;
+        letter-spacing: -1.4px;
+      }
+      .brand img {
+        width: 49px;
+        height: 49px;
+      }
+      .brand span span {
+        color: #b1afbd;
+        font-weight: 420;
+      }
+      h1 {
+        position: absolute;
+        left: 56px;
+        top: 163px;
+        margin: 0;
+        font-size: 65px;
+        line-height: 1.06;
+        letter-spacing: -3.3px;
+        font-weight: 620;
+      }
+      h1 span {
+        color: #b2a2ff;
+      }
+      .description {
+        position: absolute;
+        left: 59px;
+        top: 397px;
+        font-size: 23px;
+        line-height: 1.45;
+        color: #b8b7c2;
+        margin: 0;
+      }
+      .platforms {
+        position: absolute;
+        left: 59px;
+        bottom: 56px;
+        margin: 0;
+        font-size: 19px;
+        letter-spacing: 0.2px;
+        color: #dad8e1;
+      }
+      .platforms span {
+        color: #706b82;
+        margin: 0 11px;
+      }
+      .scene {
+        position: absolute;
+        left: 641px;
+        top: 36px;
+        width: 523px;
+        height: 558px;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid #ffffff25;
+        background: #20242d;
+      }
+      .landscape {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 64% center;
+      }
+      .shade {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          #0f111741,
+          transparent 36%,
+          #0f111744 67%,
+          #0f1117e0
+        );
+      }
+      .scene-label {
+        position: absolute;
+        top: 31px;
+        left: 31px;
+        font-size: 13px;
+        letter-spacing: 2px;
+        color: #f1e7eb;
+      }
+      .scene-title {
+        position: absolute;
+        left: 31px;
+        top: 78px;
+        font-size: 37px;
+        line-height: 1.12;
+        letter-spacing: -1.4px;
+        margin: 0;
+        font-weight: 500;
+        text-shadow: 0 2px 25px #19182055;
+      }
+      .overlay {
+        position: absolute;
+        left: 592px;
+        top: 323px;
+        width: 550px;
+        height: auto;
+        filter: drop-shadow(0 24px 30px #06060d70);
+      }
+      .demo {
+        position: absolute;
+        bottom: 64px;
+        right: 68px;
+        margin: 0;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+        color: #c0c2cd;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="brand">
+        <img src="{{app-icon.svg}}" alt="" /><span>babel<span>hack</span></span>
+      </div>
+      <h1>Субтитры там,<br />где их<br /><span>не хватает.</span></h1>
+      <p class="description">
+        Перевод звука из видео<br />и звонков поверх ваших окон.
+      </p>
+      <p class="platforms">Windows<span>·</span>macOS<span>·</span>Linux</p>
+      <div class="scene">
+        <img class="landscape" src="{{fjord.png}}" alt="" />
+        <div class="shade"></div>
+        <span class="scene-label">ПЕРЕВОД РЯДОМ</span>
+        <p class="scene-title">Ваше видео.<br />Перевод рядом.</p>
+      </div>
+      <img
+        class="overlay"
+        src="{{app-overlay.png}}"
+        alt="Настоящий интерфейс Babel Hack: перевод с английского на русский"
+      />
+      <p class="demo">Интерфейс приложения · демо EN → RU</p>
+    </main>
+  </body>
+</html>
