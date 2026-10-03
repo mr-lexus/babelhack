@@ -128,7 +128,7 @@ test("demo supports pause, resume, search, export, stop and a clean restart", as
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "JSON", exact: true }).click();
   const file = await download;
-  expect(file.suggestedFilename()).toMatch(/interview-\d+\.json/);
+  expect(file.suggestedFilename()).toMatch(/babelhack-\d+\.json/);
   const stream = await file.createReadStream();
   const chunks: Buffer[] = [];
   for await (const chunk of stream!) chunks.push(chunk);

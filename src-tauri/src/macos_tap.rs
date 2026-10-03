@@ -17,7 +17,7 @@ use objc2_core_audio::{
 use objc2_core_foundation::{
     kCFAllocatorDefault, kCFTypeArrayCallBacks, kCFTypeDictionaryKeyCallBacks,
     kCFTypeDictionaryValueCallBacks, CFArray, CFDictionary, CFMutableDictionary, CFRetained,
-    CFString, CFStringCreateWithCString,
+    CFString,
 };
 use objc2_foundation::{NSArray, NSNumber, NSString};
 use std::{
@@ -93,13 +93,13 @@ pub fn create(host: &cpal::Host, output: &cpal::Device) -> anyhow::Result<(cpal:
     let id = cpal::DeviceId::new(cpal::HostId::CoreAudio, aggregate_uid);
     let device = host
         .device_by_id(&id)
-        .context("Не удалось открыть CoreAudio tap")?;
+        .context("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ CoreAudio tap")?;
     Ok((device, guard))
 }
 
 fn to_cfstring(cstr: &'static CStr) -> CFRetained<CFString> {
     unsafe {
-        CFStringCreateWithCString(
+        CFString::with_c_string(
             kCFAllocatorDefault,
             cstr.as_ptr(),
             0x08000100, /* UTF8 */

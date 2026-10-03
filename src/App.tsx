@@ -191,7 +191,7 @@ export default function App() {
             <BrandMark size={40} />
           </span>
           <span>
-            interview<span className="brand-sub">TRANSLATOR</span>
+            babel<span className="brand-sub">HACK</span>
           </span>
         </a>
         <div className="nav-caption">РАБОЧЕЕ ПРОСТРАНСТВО</div>

@@ -38,7 +38,7 @@ export async function exportRecord(record: SessionRecord, format: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "interview-" + record.id + "." + format;
+  a.download = "babelhack-" + record.id + "." + format;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   return true;

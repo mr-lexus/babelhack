@@ -8,6 +8,8 @@ Babel Hack переводит системный звук из звонков, �
 
 [Скачать](https://github.com/mr-lexus/babelhack/releases/latest) · [Сборки и проверки](https://github.com/mr-lexus/babelhack/actions/workflows/desktop.yml) · [История изменений](CHANGELOG.md) · [Сообщить о проблеме](https://github.com/mr-lexus/babelhack/issues)
 
+![Babel Hack: демонстрационный перевод](docs/images/babelhack-demo.png)
+
 ## Возможности
 
 - Захват выбранного аудиовыхода: WASAPI loopback, CoreAudio Process Tap, PulseAudio / PipeWire monitor.

@@ -52,7 +52,7 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
             &status, &sep1, &show, &hide, &overlay, &play, &stop, &sep2, &settings, &quit,
         ],
     )?;
-    let mut builder = TrayIconBuilder::with_id("interview-translator")
+    let mut builder = TrayIconBuilder::with_id("babelhack")
         .menu(&menu)
         .tooltip("Babel Hack")
         // Linux only supports the menu; Windows left click restores the window.

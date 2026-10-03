@@ -132,7 +132,8 @@ fn save_config(app: AppHandle, args: SetConfigArgs) -> Result<(), String> {
         secure::set_openai_key(key.trim())?;
         cfg.openai_key = None;
     }
-    config::save(&cfg).map_err(|e| format!("Не удалось сохранить настройки: {e}"))?;
+    config::save(&cfg)
+        .map_err(|e| format!("РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё: {e}"))?;
     app.state::<AppState>()
         .close_to_tray
         .store(cfg.close_to_tray, Ordering::SeqCst);
@@ -157,7 +158,7 @@ fn audio_monitor(
         if let Some(error) = errors.recv().await {
             rt.paused.store(true, Ordering::Relaxed);
             rt.level.store(0, Ordering::Relaxed);
-            rt.status("error", Some(format!("Аудиоустройство отключено: {error}. Восстановите подключение и нажмите «Продолжить».")));
+            rt.status("error", Some(format!("РђСѓРґРёРѕСѓСЃС‚СЂРѕР№СЃС‚РІРѕ РѕС‚РєР»СЋС‡РµРЅРѕ: {error}. Р’РѕСЃСЃС‚Р°РЅРѕРІРёС‚Рµ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рё РЅР°Р¶РјРёС‚Рµ В«РџСЂРѕРґРѕР»Р¶РёС‚СЊВ».")));
         }
     })
 }
@@ -170,10 +171,10 @@ async fn start_session(
 ) -> Result<(), String> {
     let mut guard = state.session.lock().await;
     if state.closing.load(Ordering::SeqCst) {
-        return Err("Приложение завершает работу".into());
+        return Err("РџСЂРёР»РѕР¶РµРЅРёРµ Р·Р°РІРµСЂС€Р°РµС‚ СЂР°Р±РѕС‚Сѓ".into());
     }
     if guard.is_some() {
-        return Err("Сессия уже запущена".into());
+        return Err("РЎРµСЃСЃРёСЏ СѓР¶Рµ Р·Р°РїСѓС‰РµРЅР°".into());
     }
     let mut cfg = config::load();
     let demo = demo.unwrap_or(false);
@@ -187,8 +188,10 @@ async fn start_session(
         None
     } else {
         Some((
-            secure::get_deepgram_key().ok_or("Добавьте ключ Deepgram в настройках")?,
-            secure::get_openai_key().ok_or("Добавьте ключ OpenAI в настройках")?,
+            secure::get_deepgram_key()
+                .ok_or("Р”РѕР±Р°РІСЊС‚Рµ РєР»СЋС‡ Deepgram РІ РЅР°СЃС‚СЂРѕР№РєР°С…")?,
+            secure::get_openai_key()
+                .ok_or("Р”РѕР±Р°РІСЊС‚Рµ РєР»СЋС‡ OpenAI РІ РЅР°СЃС‚СЂРѕР№РєР°С…")?,
         ))
     };
     let title = title
@@ -199,9 +202,9 @@ async fn start_session(
         .collect::<String>();
     let title = if title.is_empty() {
         if demo {
-            "Знакомство с переводчиком".into()
+            "Р—РЅР°РєРѕРјСЃС‚РІРѕ СЃ РїРµСЂРµРІРѕРґС‡РёРєРѕРј".into()
         } else {
-            "Новая сессия".into()
+            "РќРѕРІР°СЏ СЃРµСЃСЃРёСЏ".into()
         }
     } else {
         title
@@ -263,23 +266,23 @@ async fn run_demo(rt: Arc<Runtime>, mut stop: watch::Receiver<bool>) {
     let phrases = [
         (
             "Thanks for joining today. Could you tell me about yourself?",
-            "Спасибо, что присоединились. Расскажите немного о себе.",
+            "РЎРїР°СЃРёР±Рѕ, С‡С‚Рѕ РїСЂРёСЃРѕРµРґРёРЅРёР»РёСЃСЊ. Р Р°СЃСЃРєР°Р¶РёС‚Рµ РЅРµРјРЅРѕРіРѕ Рѕ СЃРµР±Рµ.",
         ),
         (
             "I build reliable products and enjoy solving difficult problems.",
-            "Я создаю надёжные продукты и люблю решать сложные задачи.",
+            "РЇ СЃРѕР·РґР°СЋ РЅР°РґС‘Р¶РЅС‹Рµ РїСЂРѕРґСѓРєС‚С‹ Рё Р»СЋР±Р»СЋ СЂРµС€Р°С‚СЊ СЃР»РѕР¶РЅС‹Рµ Р·Р°РґР°С‡Рё.",
         ),
         (
             "How do you approach a project with a tight deadline?",
-            "Как вы подходите к проекту с жёсткими сроками?",
+            "РљР°Рє РІС‹ РїРѕРґС…РѕРґРёС‚Рµ Рє РїСЂРѕРµРєС‚Сѓ СЃ Р¶С‘СЃС‚РєРёРјРё СЃСЂРѕРєР°РјРё?",
         ),
         (
             "First, I identify the most important outcome and break the work into small steps.",
-            "Сначала определяю главный результат и разбиваю работу на небольшие шаги.",
+            "РЎРЅР°С‡Р°Р»Р° РѕРїСЂРµРґРµР»СЏСЋ РіР»Р°РІРЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ Рё СЂР°Р·Р±РёРІР°СЋ СЂР°Р±РѕС‚Сѓ РЅР° РЅРµР±РѕР»СЊС€РёРµ С€Р°РіРё.",
         ),
         (
             "Clear communication helps the team make better decisions.",
-            "Понятная коммуникация помогает команде принимать лучшие решения.",
+            "РџРѕРЅСЏС‚РЅР°СЏ РєРѕРјРјСѓРЅРёРєР°С†РёСЏ РїРѕРјРѕРіР°РµС‚ РєРѕРјР°РЅРґРµ РїСЂРёРЅРёРјР°С‚СЊ Р»СѓС‡С€РёРµ СЂРµС€РµРЅРёСЏ.",
         ),
     ];
     for (source, translated) in phrases {
@@ -314,13 +317,15 @@ async fn run_demo(rt: Arc<Runtime>, mut stop: watch::Receiver<bool>) {
     }
     rt.status(
         "listening",
-        Some("Демонстрация завершена. Нажмите «Завершить», чтобы начать свою сессию.".into()),
+        Some("Р”РµРјРѕРЅСЃС‚СЂР°С†РёСЏ Р·Р°РІРµСЂС€РµРЅР°. РќР°Р¶РјРёС‚Рµ В«Р—Р°РІРµСЂС€РёС‚СЊВ», С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ СЃРІРѕСЋ СЃРµСЃСЃРёСЋ.".into()),
     );
 }
 #[tauri::command]
 async fn pause_session(state: State<'_, AppState>) -> Result<(), String> {
     let mut guard = state.session.lock().await;
-    let s = guard.as_mut().ok_or("Нет активной сессии")?;
+    let s = guard
+        .as_mut()
+        .ok_or("РќРµС‚ Р°РєС‚РёРІРЅРѕР№ СЃРµСЃСЃРёРё")?;
     s.rt.paused.store(true, Ordering::Relaxed);
     s.audio.take();
     if let Some(task) = s.audio_task.take() {
@@ -334,12 +339,14 @@ async fn pause_session(state: State<'_, AppState>) -> Result<(), String> {
 #[tauri::command]
 async fn resume_session(state: State<'_, AppState>) -> Result<(), String> {
     let mut guard = state.session.lock().await;
-    let s = guard.as_mut().ok_or("Нет активной сессии")?;
+    let s = guard
+        .as_mut()
+        .ok_or("РќРµС‚ Р°РєС‚РёРІРЅРѕР№ СЃРµСЃСЃРёРё")?;
     if !s.rt.paused.load(Ordering::Relaxed) {
         return Ok(());
     }
     if s.rt.snapshot().status == "error" && s.tasks.first().is_some_and(|h| h.is_finished()) {
-        return Err("Остановите сессию и запустите заново после исправления настроек".into());
+        return Err("РћСЃС‚Р°РЅРѕРІРёС‚Рµ СЃРµСЃСЃРёСЋ Рё Р·Р°РїСѓСЃС‚РёС‚Рµ Р·Р°РЅРѕРІРѕ РїРѕСЃР»Рµ РёСЃРїСЂР°РІР»РµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє".into());
     }
     if !s.demo {
         s.audio.take();
@@ -425,7 +432,7 @@ fn get_session(id: String, state: State<'_, AppState>) -> Result<history::Record
 fn delete_session(id: String, state: State<'_, AppState>) -> Result<(), String> {
     if let Some(rt) = state.current.lock().unwrap().as_ref() {
         if rt.snapshot().active && rt.record.lock().unwrap().id == id {
-            return Err("Сначала завершите сессию".into());
+            return Err("РЎРЅР°С‡Р°Р»Р° Р·Р°РІРµСЂС€РёС‚Рµ СЃРµСЃСЃРёСЋ".into());
         }
     }
     std::fs::remove_file(history::path(&id)?).map_err(|e| e.to_string())
@@ -445,7 +452,7 @@ fn save_overlay_geometry(args: Geometry) -> Result<(), String> {
         || args.width < 280.0
         || args.height < 120.0
     {
-        return Err("Некорректная геометрия окна".into());
+        return Err("РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ РіРµРѕРјРµС‚СЂРёСЏ РѕРєРЅР°".into());
     }
     let _guard = config::CONFIG_LOCK.lock().unwrap();
     let mut cfg = config::load();
@@ -459,7 +466,7 @@ fn save_overlay_geometry(args: Geometry) -> Result<(), String> {
 fn toggle_overlay(app: AppHandle) -> Result<(), String> {
     let w = app
         .get_webview_window("overlay")
-        .ok_or("Окно субтитров недоступно")?;
+        .ok_or("РћРєРЅРѕ СЃСѓР±С‚РёС‚СЂРѕРІ РЅРµРґРѕСЃС‚СѓРїРЅРѕ")?;
     if w.is_visible().map_err(|e| e.to_string())? {
         w.hide()
     } else {
@@ -471,7 +478,7 @@ fn toggle_overlay(app: AppHandle) -> Result<(), String> {
 fn reset_overlay(app: AppHandle) -> Result<(), String> {
     let w = app
         .get_webview_window("overlay")
-        .ok_or("Окно субтитров недоступно")?;
+        .ok_or("РћРєРЅРѕ СЃСѓР±С‚РёС‚СЂРѕРІ РЅРµРґРѕСЃС‚СѓРїРЅРѕ")?;
     w.set_size(tauri::LogicalSize::new(640.0, 260.0))
         .map_err(|e| e.to_string())?;
     if !platform::info().wayland {
@@ -489,7 +496,7 @@ async fn export_session(
     use tauri_plugin_dialog::DialogExt;
     let record = get_session(id, state)?;
     let content = export_text(&record, &format)?;
-    let name = format!("interview-{}.{}", record.id, format);
+    let name = format!("babelhack-{}.{}", record.id, format);
     let ext = format.clone();
     let file = tauri::async_runtime::spawn_blocking(move || {
         app.dialog()
@@ -511,7 +518,7 @@ fn export_text(r: &history::Record, format: &str) -> Result<String, String> {
     match format {
         "json" => serde_json::to_string_pretty(r).map_err(|e| e.to_string()),
         "txt" | "md" => Ok(format!(
-            "{}\n{} → {}\n\n{}",
+            "{}\n{} в†’ {}\n\n{}",
             r.title,
             r.source_language,
             r.target_language,
@@ -523,7 +530,9 @@ fn export_text(r: &history::Record, format: &str) -> Result<String, String> {
                     e.timestamp_ms / 1000 % 60,
                     e.source,
                     if e.translation.is_empty() {
-                        e.error.as_deref().unwrap_or("Перевод не завершён")
+                        e.error
+                            .as_deref()
+                            .unwrap_or("РџРµСЂРµРІРѕРґ РЅРµ Р·Р°РІРµСЂС€С‘РЅ")
                     } else {
                         &e.translation
                     }
@@ -531,7 +540,7 @@ fn export_text(r: &history::Record, format: &str) -> Result<String, String> {
                 .collect::<Vec<_>>()
                 .join("\n")
         )),
-        _ => Err("Допустимые форматы: txt, md, json".into()),
+        _ => Err("Р”РѕРїСѓСЃС‚РёРјС‹Рµ С„РѕСЂРјР°С‚С‹: txt, md, json".into()),
     }
 }
 pub fn run() {
@@ -604,18 +613,21 @@ pub fn run() {
                 "overlay",
                 tauri::WebviewUrl::App("index.html".into()),
             )
-            .title("Babel Hack · Субтитры")
+            .title("Babel Hack В· РЎСѓР±С‚РёС‚СЂС‹")
             .inner_size(640.0, 260.0)
             .min_inner_size(280.0, 120.0)
             .decorations(false)
             // Native shadows add a white frame/second corner on Windows.
             // The overlay owns its rounded outline in CSS.
             .shadow(false)
-            .transparent(platform::info().overlay_transparency)
             .always_on_top(true)
             .skip_taskbar(true)
             .resizable(true)
             .visible(false);
+            #[cfg(not(target_os = "macos"))]
+            {
+                builder = builder.transparent(true);
+            }
             if let (Some(w), Some(h)) = (cfg.overlay_width, cfg.overlay_height) {
                 if w.is_finite() && h.is_finite() {
                     builder = builder.inner_size(w.clamp(280.0, 2000.0), h.clamp(120.0, 1200.0));
@@ -725,17 +737,17 @@ mod tests {
     use super::*;
     #[test]
     fn export_preserves_unicode_and_failed_source() {
-        let mut r = history::Record::new(&config::Config::default(), "Тест".into());
+        let mut r = history::Record::new(&config::Config::default(), "РўРµСЃС‚".into());
         r.entries.push(history::Entry {
             id: 1,
             timestamp_ms: 65000,
             source: "Hello".into(),
-            translation: "Привет".into(),
+            translation: "РџСЂРёРІРµС‚".into(),
             error: None,
         });
         let text = export_text(&r, "txt").unwrap();
         assert!(text.contains("[1:05]"));
-        assert!(text.contains("Привет"));
+        assert!(text.contains("РџСЂРёРІРµС‚"));
         assert!(export_text(&r, "exe").is_err());
         assert!(serde_json::from_str::<history::Record>(&export_text(&r, "json").unwrap()).is_ok());
     }

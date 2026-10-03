@@ -39,17 +39,17 @@ impl AudioCapture {
         let device = linux_monitor(&host, &output)?;
         #[cfg(target_os = "macos")]
         let (device, tap) = super::macos_tap::create(&host, &output)
-            .context("Не удалось захватить системный звук macOS. Разрешите запись системного аудио в настройках конфиденциальности и перезапустите приложение")?;
+            .context("РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°С…РІР°С‚РёС‚СЊ СЃРёСЃС‚РµРјРЅС‹Р№ Р·РІСѓРє macOS. Р Р°Р·СЂРµС€РёС‚Рµ Р·Р°РїРёСЃСЊ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕ РІ РЅР°СЃС‚СЂРѕР№РєР°С… РєРѕРЅС„РёРґРµРЅС†РёР°Р»СЊРЅРѕСЃС‚Рё Рё РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚Рµ РїСЂРёР»РѕР¶РµРЅРёРµ")?;
         #[cfg(target_os = "windows")]
         let device = output;
         #[cfg(any(target_os = "linux", target_os = "macos"))]
-        let config = device
-            .default_input_config()
-            .context("Формат системного аудиозахвата недоступен")?;
+        let config = device.default_input_config().context(
+            "Р¤РѕСЂРјР°С‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕР·Р°С…РІР°С‚Р° РЅРµРґРѕСЃС‚СѓРїРµРЅ",
+        )?;
         #[cfg(target_os = "windows")]
-        let config = device
-            .default_output_config()
-            .context("Формат системного аудиозахвата недоступен")?;
+        let config = device.default_output_config().context(
+            "Р¤РѕСЂРјР°С‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ Р°СѓРґРёРѕР·Р°С…РІР°С‚Р° РЅРµРґРѕСЃС‚СѓРїРµРЅ",
+        )?;
         let sample_rate = config.sample_rate() as f64;
         let channels = config.channels() as usize;
         let sample_format = config.sample_format();
@@ -93,7 +93,11 @@ impl AudioCapture {
             cpal::SampleFormat::U24 => capture!(cpal::U24),
             cpal::SampleFormat::U32 => capture!(u32),
             cpal::SampleFormat::U64 => capture!(u64),
-            other => return Err(anyhow!("Неподдерживаемый формат аудио: {other:?}")),
+            other => {
+                return Err(anyhow!(
+                    "РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С„РѕСЂРјР°С‚ Р°СѓРґРёРѕ: {other:?}"
+                ))
+            }
         };
 
         stream
@@ -124,7 +128,7 @@ fn capture_host() -> anyhow::Result<cpal::Host> {
     let id = cpal::HostId::CoreAudio;
     #[cfg(target_os = "windows")]
     let id = cpal::HostId::Wasapi;
-    cpal::host_from_id(id).context("Аудиосервис недоступен. На Linux запустите PulseAudio или PipeWire с pipewire-pulse в пользовательской сессии")
+    cpal::host_from_id(id).context("РђСѓРґРёРѕСЃРµСЂРІРёСЃ РЅРµРґРѕСЃС‚СѓРїРµРЅ. РќР° Linux Р·Р°РїСѓСЃС‚РёС‚Рµ PulseAudio РёР»Рё PipeWire СЃ pipewire-pulse РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕР№ СЃРµСЃСЃРёРё")
 }
 
 pub fn list_output_devices() -> anyhow::Result<Vec<OutputDevice>> {
@@ -152,10 +156,10 @@ fn selected_index(devices: &[OutputDevice], saved: &str) -> anyhow::Result<usize
     match matches.as_slice() {
         [(i, _)] => Ok(*i),
         [] => Err(anyhow!(
-            "Выбранное аудиоустройство недоступно. Выберите другое в настройках."
+            "Р’С‹Р±СЂР°РЅРЅРѕРµ Р°СѓРґРёРѕСѓСЃС‚СЂРѕР№СЃС‚РІРѕ РЅРµРґРѕСЃС‚СѓРїРЅРѕ. Р’С‹Р±РµСЂРёС‚Рµ РґСЂСѓРіРѕРµ РІ РЅР°СЃС‚СЂРѕР№РєР°С…."
         )),
         _ => Err(anyhow!(
-            "Несколько устройств имеют одинаковое имя. Выберите устройство заново."
+            "РќРµСЃРєРѕР»СЊРєРѕ СѓСЃС‚СЂРѕР№СЃС‚РІ РёРјРµСЋС‚ РѕРґРёРЅР°РєРѕРІРѕРµ РёРјСЏ. Р’С‹Р±РµСЂРёС‚Рµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Р·Р°РЅРѕРІРѕ."
         )),
     }
 }
@@ -164,7 +168,7 @@ fn resolve_output_device(host: &cpal::Host, saved: Option<&str>) -> anyhow::Resu
     let Some(saved) = saved else {
         return host
             .default_output_device()
-            .ok_or_else(|| anyhow!("Устройство воспроизведения по умолчанию недоступно"));
+            .ok_or_else(|| anyhow!("РЈСЃС‚СЂРѕР№СЃС‚РІРѕ РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РЅРµРґРѕСЃС‚СѓРїРЅРѕ"));
     };
     let devices: Vec<_> = host.output_devices()?.collect();
     let descriptors: anyhow::Result<Vec<_>> = devices
@@ -185,19 +189,34 @@ fn resolve_output_device(host: &cpal::Host, saved: Option<&str>) -> anyhow::Resu
 
 #[cfg(target_os = "linux")]
 fn linux_monitor(host: &cpal::Host, output: &cpal::Device) -> anyhow::Result<cpal::Device> {
-    use cpal::{host::pulseaudio::Device, DeviceInner};
-    let DeviceInner::PulseAudio(Device::Sink { info, .. }) = output.as_inner() else {
-        return Err(anyhow!("Нужен выход PulseAudio/PipeWire"));
-    };
-    let sink = info.index;
-    let monitor = info
-        .monitor_source_index
-        .ok_or_else(|| anyhow!("У выбранного выхода нет monitor-источника"))?;
+    // Query the server through its public API; CPAL does not expose PulseAudio's
+    // Sink/Source types. Never guess a ".monitor" suffix or fall back to a microphone.
+    let output_id = output.id()?;
+    let sink_name = std::ffi::CString::new(output_id.id())?;
+    let (tx, rx) = std::sync::mpsc::sync_channel(1);
+    std::thread::spawn(move || {
+        let result = (|| -> anyhow::Result<String> {
+            let client = pulseaudio::Client::from_env(c"babelhack-monitor-lookup")?;
+            futures::executor::block_on(async {
+                let sink = client.sink_info_by_name(sink_name).await?;
+                let monitor = sink
+                    .monitor_source_index
+                    .ok_or_else(|| anyhow!("У выбранного выхода нет monitor-источника"))?;
+                let source = client.source_info(monitor).await?;
+                if source.monitor_of_sink_index != Some(sink.index) {
+                    return Err(anyhow!("Monitor не принадлежит выбранному выходу"));
+                }
+                Ok(source.name.to_str()?.to_owned())
+            })
+        })();
+        let _ = tx.send(result);
+    });
+    let name = rx
+        .recv_timeout(std::time::Duration::from_secs(5))
+        .context("PulseAudio: превышено время поиска monitor-источника")??;
+    let monitor_id = cpal::DeviceId::new(cpal::HostId::PulseAudio, name);
     host.input_devices()?
-        .find(|device| {
-            matches!(device.as_inner(), DeviceInner::PulseAudio(Device::Source { info, .. })
-            if info.index == monitor && info.monitor_of_sink_index == Some(sink))
-        })
+        .find(|device| device.id().is_ok_and(|id| id == monitor_id))
         .ok_or_else(|| {
             anyhow!("Monitor выбранного выхода недоступен. Проверьте PulseAudio / pipewire-pulse.")
         })
