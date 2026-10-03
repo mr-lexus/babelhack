@@ -1,3 +1,120 @@
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const motionToggle = document.getElementById("motion-toggle");
+const motionLabel = document.getElementById("motion-label");
+const motionStorageKey = "babelhack-site-motion";
+let motionPaused = false;
+try {
+  motionPaused = localStorage.getItem(motionStorageKey) === "paused";
+} catch {
+  /* Storage is optional. */
+}
+const activeAnimations = new Map();
+const motionAllowed = () =>
+  !reducedMotion.matches && !motionPaused && !document.hidden;
+
+function animateIn(element, { delay = 0, distance = 18, duration = 650 } = {}) {
+  if (!motionAllowed() || !element?.animate) return;
+  activeAnimations.get(element)?.cancel();
+  const animation = element.animate(
+    [
+      { opacity: 0, transform: `translateY(${distance}px)` },
+      { opacity: 1, transform: "translateY(0)" },
+    ],
+    { duration, delay, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" },
+  );
+  activeAnimations.set(element, animation);
+  const clear = () => {
+    if (activeAnimations.get(element) === animation)
+      activeAnimations.delete(element);
+  };
+  animation.onfinish = clear;
+  animation.oncancel = clear;
+}
+function syncMotion() {
+  document.documentElement.dataset.motion = motionAllowed() ? "on" : "off";
+  motionToggle.setAttribute(
+    "aria-pressed",
+    String(!motionPaused && !reducedMotion.matches),
+  );
+  motionToggle.disabled = reducedMotion.matches;
+  motionLabel.textContent = reducedMotion.matches
+    ? "Без анимации — настройка системы"
+    : motionPaused
+      ? "Анимация выключена"
+      : "Анимация включена";
+  if (!motionAllowed()) {
+    activeAnimations.forEach((animation) => animation.cancel());
+    activeAnimations.clear();
+  }
+}
+motionToggle.hidden = false;
+motionToggle.addEventListener("click", () => {
+  motionPaused = !motionPaused;
+  try {
+    localStorage.setItem(motionStorageKey, motionPaused ? "paused" : "enabled");
+  } catch {
+    /* Keep the in-memory preference. */
+  }
+  syncMotion();
+});
+reducedMotion.addEventListener("change", syncMotion);
+document.addEventListener("visibilitychange", syncMotion);
+syncMotion();
+
+// Content stays visible without JS or an observer. Nothing waits for animation to become usable.
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        revealObserver.unobserve(entry.target);
+        animateIn(entry.target, {
+          delay: Number(entry.target.dataset.revealDelay || 0),
+        });
+      });
+    },
+    { threshold: 0.08 },
+  );
+  document
+    .querySelectorAll(
+      ".section-heading, .feature-grid article, .workspace, .detail-row > p, .steps > li, .cost-note, .transparency > div, .download-copy, .download-box, .faq > div, .footer-top",
+    )
+    .forEach((element) => {
+      if (element.matches(".feature-grid article, .steps > li"))
+        element.dataset.revealDelay = String(
+          [...element.parentElement.children].indexOf(element) * 90,
+        );
+      revealObserver.observe(element);
+    });
+  const ambientObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) =>
+      entry.target.classList.toggle("ambient-visible", entry.isIntersecting),
+    );
+  });
+  document
+    .querySelectorAll(".hero, .download-section")
+    .forEach((element) => ambientObserver.observe(element));
+}
+document
+  .querySelectorAll(
+    ".hero > .eyebrow, #hero-title, .hero-description, .hero-figure",
+  )
+  .forEach((element, index) =>
+    animateIn(element, { delay: index * 90, distance: 22, duration: 850 }),
+  );
+document.addEventListener("focusin", (event) => {
+  // A keyboard user should never land on a faded or moving control.
+  activeAnimations.forEach((animation, element) => {
+    if (element.contains(event.target)) animation.cancel();
+  });
+});
+document.querySelectorAll(".faq details").forEach((detail) =>
+  detail.addEventListener("toggle", () => {
+    if (detail.open)
+      animateIn(detail.querySelector("p"), { distance: 6, duration: 280 });
+  }),
+);
+
 const releaseBase =
   "https://github.com/mr-lexus/babelhack/releases/download/v0.7.0/BabelHack-0.7.0-";
 const platformTabs = [...document.querySelectorAll("[data-platform]")];
@@ -6,8 +123,10 @@ function selectPlatform(platform, focus = false) {
     const selected = tab.dataset.platform === platform;
     tab.setAttribute("aria-selected", String(selected));
     tab.tabIndex = selected ? 0 : -1;
-    document.getElementById(tab.getAttribute("aria-controls")).hidden =
-      !selected;
+    const panel = document.getElementById(tab.getAttribute("aria-controls"));
+    const wasHidden = panel.hidden;
+    panel.hidden = !selected;
+    if (selected && wasHidden) animateIn(panel, { distance: 8, duration: 300 });
     if (selected && focus) tab.focus();
   });
 }
@@ -75,8 +194,7 @@ const gallery = {
   session: {
     image: "assets/app-session.png",
     alt: "Главное окно Babel Hack: оригинал, перевод и лента разговора в демонстрационной сессии",
-    description:
-      "Оригинал, перевод и лента разговора — в одном рабочем пространстве.",
+    description: "Здесь видны оригинал, перевод и уже законченные фразы.",
     caption:
       "Живой перевод · Babel Hack 0.7.0 · Windows · демонстрационная сессия",
   },
@@ -84,15 +202,19 @@ const gallery = {
     image: "assets/app-settings.png",
     alt: "Настройки Babel Hack: подключения, языки и оформление окна субтитров",
     description:
-      "Подключения, языки, словарь и оформление — под ваш рабочий процесс.",
+      "Выберите языки, добавьте ключи и настройте, как будут выглядеть субтитры.",
     caption:
       "Настройки · Babel Hack 0.7.0 · Windows · ключи не отображаются в интерфейсе",
   },
 };
+let galleryRevision = 0;
 document.querySelectorAll("[data-gallery]").forEach((button) =>
   button.addEventListener("click", () => {
     const item = gallery[button.dataset.gallery];
     const image = document.getElementById("workspace-image");
+    if (image.getAttribute("src") === item.image) return;
+    const revision = ++galleryRevision;
+    activeAnimations.get(image)?.cancel();
     image.src = item.image;
     image.alt = item.alt;
     image.parentElement.dataset.lightbox = item.image;
@@ -104,6 +226,14 @@ document.querySelectorAll("[data-gallery]").forEach((button) =>
       other.setAttribute("aria-pressed", String(active));
       other.classList.toggle("active", active);
     });
+    // Ignore late image decodes after another tab was selected.
+    image
+      .decode()
+      .then(() => {
+        if (revision === galleryRevision)
+          animateIn(image, { distance: 10, duration: 400 });
+      })
+      .catch(() => {});
   }),
 );
 const dialog = document.getElementById("screenshot-dialog");
@@ -117,6 +247,7 @@ document.querySelectorAll("[data-lightbox]").forEach((button) =>
     document.getElementById("screenshot-caption").textContent =
       button.dataset.caption;
     dialog.showModal();
+    animateIn(dialog, { distance: 10, duration: 260 });
   }),
 );
 document

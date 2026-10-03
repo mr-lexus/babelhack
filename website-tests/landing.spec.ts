@@ -7,8 +7,8 @@ test("real screenshots load, gallery and modal work with keyboard", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("./");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Слышать мир.Понимать больше.",
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "где их не хватает.",
   );
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
   await expect(page.locator("#workspace-image")).toHaveAttribute(
@@ -99,6 +99,7 @@ test("download selectors map all 12 release packages and support keyboard tabs",
 test("responsive layouts have no horizontal overflow or WCAG A/AA violations", async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -144,4 +145,109 @@ test("download and FAQ remain usable without JavaScript", async ({
     page.getByText("Живой перевод требует подключения", { exact: false }),
   ).toBeVisible();
   await context.close();
+});
+
+test("ambient motion runs, can be paused, and remembers the preference", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("./");
+  const toggle = page.locator("#motion-toggle");
+  const scene = page.locator(".desktop-scene");
+  await scene.scrollIntoViewIfNeeded();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .poll(() =>
+      page
+        .locator(".landscape")
+        .evaluate((el) => getComputedStyle(el).animationPlayState),
+    )
+    .toBe("running");
+  const first = await page
+    .locator(".landscape")
+    .evaluate((el) => getComputedStyle(el).transform);
+  await expect
+    .poll(() =>
+      page
+        .locator(".landscape")
+        .evaluate((el) => getComputedStyle(el).transform),
+    )
+    .not.toBe(first);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => a.playState === "running")
+            .length,
+      ),
+    )
+    .toBe(0);
+  await page.reload();
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await page.locator("#download").scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      page
+        .locator(".landscape")
+        .evaluate((el) => getComputedStyle(el).animationPlayState),
+    )
+    .toBe("paused");
+  await expect
+    .poll(() =>
+      page
+        .locator(".download-section")
+        .evaluate((el) => getComputedStyle(el, "::before").animationPlayState),
+    )
+    .toBe("running");
+});
+
+test("system reduced motion is respected at load and when changed", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("./");
+  const toggle = page.locator("#motion-toggle");
+  await expect(toggle).toBeDisabled();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await expect(page.locator("#workspace-image")).toHaveAttribute(
+    "src",
+    "assets/app-settings.png",
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => a.playState === "running")
+            .length,
+      ),
+    )
+    .toBe(0);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(toggle).toBeEnabled();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await page
+    .getByRole("button", { name: "Живой перевод", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Настройки", exact: true }).click();
+  await expect(page.locator("#workspace-image")).toHaveAttribute(
+    "src",
+    "assets/app-settings.png",
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => a.playState === "running")
+            .length,
+      ),
+    )
+    .toBe(0);
 });

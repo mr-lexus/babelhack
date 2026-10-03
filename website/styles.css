@@ -208,6 +208,8 @@ p {
 }
 .hero {
   padding-top: 65px;
+  position: relative;
+  isolation: isolate;
 }
 .hero > .eyebrow {
   color: var(--muted);
@@ -1350,6 +1352,189 @@ body:has(dialog[open]) {
   }
   .system-heading h3 {
     font-size: 24px;
+  }
+}
+/* Ambient light is contained behind the copy; only transform/opacity move. */
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  width: min(75%, 900px);
+  height: 560px;
+  top: -40px;
+  right: 0;
+  background: radial-gradient(
+    ellipse at center,
+    #9270e922,
+    #757fe00a 45%,
+    transparent 70%
+  );
+  transform-origin: 60% 30%;
+  animation: ambient-light 18s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.download-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.download-section::before,
+.download-section::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  width: 650px;
+  height: 650px;
+  left: -160px;
+  top: -270px;
+  border: 1px solid #b2a2ff20;
+  border-radius: 42% 58% 64% 36% / 42% 38% 62% 58%;
+  background: radial-gradient(ellipse at center, #b2a2ff08, transparent 65%);
+  animation: ambient-orbit 38s linear infinite;
+  animation-play-state: paused;
+}
+.download-section::after {
+  width: 760px;
+  height: 760px;
+  left: -215px;
+  top: -325px;
+  animation-direction: reverse;
+  animation-duration: 52s;
+}
+.landscape {
+  animation: landscape-drift 26s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.motion-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -2px;
+}
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  min-height: 36px;
+  padding: 6px 0 6px 10px;
+  border: 0;
+  border-radius: 4px;
+}
+.motion-toggle[hidden] {
+  display: none;
+}
+.motion-toggle:hover:enabled {
+  color: var(--text);
+}
+.motion-toggle:disabled {
+  opacity: 1;
+}
+.motion-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 15px;
+}
+.motion-bars i {
+  width: 2px;
+  height: 10px;
+  background: currentColor;
+  border-radius: 1px;
+  transform: scaleY(0.5);
+  animation: signal-wave 1.4s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.motion-bars i:nth-child(2) {
+  animation-delay: -0.7s;
+  height: 15px;
+}
+.motion-bars i:nth-child(3) {
+  animation-delay: -0.3s;
+  height: 12px;
+}
+.motion-bars i:nth-child(4) {
+  animation-delay: -1s;
+  height: 8px;
+}
+html[data-motion="on"] .hero.ambient-visible::before,
+html[data-motion="on"] .hero.ambient-visible .landscape,
+html[data-motion="on"] .hero.ambient-visible .motion-bars i,
+html[data-motion="on"] .download-section.ambient-visible::before,
+html[data-motion="on"] .download-section.ambient-visible::after {
+  animation-play-state: running;
+}
+.button > span[aria-hidden],
+.feature-grid svg {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.button:hover > span[aria-hidden] {
+  transform: translate(2px, 2px);
+}
+.feature-grid article:hover svg {
+  transform: translateY(-4px);
+}
+.gallery-tab,
+.platform-tabs button {
+  transition:
+    background 0.22s,
+    color 0.22s;
+}
+.text-link {
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.text-link:hover {
+  border-color: var(--accent);
+}
+@keyframes ambient-light {
+  from {
+    transform: translate3d(-4%, -3%, 0) scale(0.9);
+    opacity: 0.65;
+  }
+  to {
+    transform: translate3d(3%, 5%, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+@keyframes landscape-drift {
+  from {
+    transform: scale(1.035) translate3d(-0.45%, 0.3%, 0);
+  }
+  to {
+    transform: scale(1.065) translate3d(0.45%, -0.3%, 0);
+  }
+}
+@keyframes ambient-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes signal-wave {
+  to {
+    transform: scaleY(1);
+  }
+}
+html[data-motion="off"] {
+  scroll-behavior: auto;
+}
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  transition: none !important;
+}
+@media (max-width: 760px) {
+  .hero::before {
+    width: 100%;
+    height: 480px;
+    top: 20px;
+  }
+  .motion-toggle {
+    font-size: 9px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
