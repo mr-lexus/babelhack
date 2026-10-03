@@ -59,6 +59,13 @@ motionToggle.addEventListener("click", () => {
 });
 reducedMotion.addEventListener("change", syncMotion);
 document.addEventListener("visibilitychange", syncMotion);
+window.addEventListener("focus", syncMotion);
+window.addEventListener("pageshow", syncMotion);
+// The CSS media query also stops ambient animations. Use that cancellation
+// as a second signal when a rapid preference change is coalesced by the browser.
+document.addEventListener("animationcancel", () => {
+  if (reducedMotion.matches) syncMotion();
+});
 syncMotion();
 
 // Content stays visible without JS or an observer. Nothing waits for animation to become usable.
