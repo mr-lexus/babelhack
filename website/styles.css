@@ -1407,62 +1407,8 @@ body:has(dialog[open]) {
   animation: landscape-drift 26s ease-in-out infinite alternate;
   animation-play-state: paused;
 }
-.motion-controls {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -2px;
-}
-.motion-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 10px;
-  min-height: 36px;
-  padding: 6px 0 6px 10px;
-  border: 0;
-  border-radius: 4px;
-}
-.motion-toggle[hidden] {
-  display: none;
-}
-.motion-toggle:hover:enabled {
-  color: var(--text);
-}
-.motion-toggle:disabled {
-  opacity: 1;
-}
-.motion-bars {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 15px;
-}
-.motion-bars i {
-  width: 2px;
-  height: 10px;
-  background: currentColor;
-  border-radius: 1px;
-  transform: scaleY(0.5);
-  animation: signal-wave 1.4s ease-in-out infinite alternate;
-  animation-play-state: paused;
-}
-.motion-bars i:nth-child(2) {
-  animation-delay: -0.7s;
-  height: 15px;
-}
-.motion-bars i:nth-child(3) {
-  animation-delay: -0.3s;
-  height: 12px;
-}
-.motion-bars i:nth-child(4) {
-  animation-delay: -1s;
-  height: 8px;
-}
 html[data-motion="on"] .hero.ambient-visible::before,
 html[data-motion="on"] .hero.ambient-visible .landscape,
-html[data-motion="on"] .hero.ambient-visible .motion-bars i,
 html[data-motion="on"] .download-section.ambient-visible::before,
 html[data-motion="on"] .download-section.ambient-visible::after {
   animation-play-state: running;
@@ -1514,11 +1460,6 @@ html[data-motion="on"] .download-section.ambient-visible::after {
     transform: rotate(360deg);
   }
 }
-@keyframes signal-wave {
-  to {
-    transform: scaleY(1);
-  }
-}
 html[data-motion="off"] {
   scroll-behavior: auto;
 }
@@ -1533,18 +1474,35 @@ html[data-motion="off"] *::after {
     height: 480px;
     top: 20px;
   }
-  .motion-toggle {
-    font-size: 9px;
+}
+@keyframes ambient-fade {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion-override="enabled"]) {
+  html {
     scroll-behavior: auto;
   }
-  html:not([data-motion-override="enabled"]) *,
-  html:not([data-motion-override="enabled"]) *::before,
-  html:not([data-motion-override="enabled"]) *::after {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
-    animation: none !important;
+  }
+  .landscape {
+    animation: none;
+  }
+  .hero::before,
+  .download-section::before,
+  .download-section::after {
+    animation-name: ambient-fade;
+    animation-duration: 3.5s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: both;
+    transform: none;
   }
 }

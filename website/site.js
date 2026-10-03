@@ -1,29 +1,23 @@
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-const motionToggle = document.getElementById("motion-toggle");
-const motionLabel = document.getElementById("motion-label");
-const motionStorageKey = "babelhack-site-motion";
-let motionPreference = null;
-try {
-  const saved = localStorage.getItem(motionStorageKey);
-  if (saved === "paused" || saved === "enabled") motionPreference = saved;
-} catch {
-  /* Storage is optional. */
-}
 const activeAnimations = new Map();
-const motionEnabled = () =>
-  motionPreference === "enabled" ||
-  (motionPreference !== "paused" && !reducedMotion.matches);
-const motionAllowed = () => motionEnabled() && !document.hidden;
+const motionAllowed = () => !document.hidden;
 
 function animateIn(element, { delay = 0, distance = 18, duration = 650 } = {}) {
   if (!motionAllowed() || !element?.animate) return;
   activeAnimations.get(element)?.cancel();
+  // Reduced motion keeps a short fade, without movement or stagger.
+  const reduced = reducedMotion.matches;
   const animation = element.animate(
     [
-      { opacity: 0, transform: `translateY(${distance}px)` },
+      { opacity: 0, transform: `translateY(${reduced ? 0 : distance}px)` },
       { opacity: 1, transform: "translateY(0)" },
     ],
-    { duration, delay, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" },
+    {
+      duration: reduced ? 160 : duration,
+      delay: reduced ? 0 : delay,
+      easing: "cubic-bezier(.16,1,.3,1)",
+      fill: "backwards",
+    },
   );
   activeAnimations.set(element, animation);
   const clear = () => {
@@ -34,39 +28,16 @@ function animateIn(element, { delay = 0, distance = 18, duration = 650 } = {}) {
   animation.oncancel = clear;
 }
 function syncMotion() {
-  document.documentElement.dataset.motionOverride =
-    motionPreference || "system";
   document.documentElement.dataset.motion = motionAllowed() ? "on" : "off";
-  motionToggle.setAttribute("aria-pressed", String(motionEnabled()));
-  motionToggle.title = motionEnabled()
-    ? "Выключить анимацию на сайте"
-    : "Включить анимацию на сайте";
-  motionLabel.textContent = motionEnabled()
-    ? "Анимация включена"
-    : reducedMotion.matches && !motionPreference
-      ? "Включить анимацию · сейчас выключена системой"
-      : "Анимация выключена";
-  if (!motionAllowed()) {
+  if (!motionAllowed() || reducedMotion.matches) {
     activeAnimations.forEach((animation) => animation.cancel());
     activeAnimations.clear();
   }
 }
-motionToggle.hidden = false;
-motionToggle.addEventListener("click", () => {
-  motionPreference = motionEnabled() ? "paused" : "enabled";
-  try {
-    localStorage.setItem(motionStorageKey, motionPreference);
-  } catch {
-    /* Keep the in-memory preference. */
-  }
-  syncMotion();
-});
 reducedMotion.addEventListener("change", syncMotion);
 document.addEventListener("visibilitychange", syncMotion);
 window.addEventListener("focus", syncMotion);
 window.addEventListener("pageshow", syncMotion);
-// The CSS media query also stops ambient animations. Use that cancellation
-// as a second signal when a rapid preference change is coalesced by the browser.
 document.addEventListener("animationcancel", () => {
   if (reducedMotion.matches) syncMotion();
 });

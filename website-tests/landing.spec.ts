@@ -147,15 +147,13 @@ test("download and FAQ remain usable without JavaScript", async ({
   await context.close();
 });
 
-test("ambient motion runs, can be paused, and remembers the preference", async ({
+test("motion starts automatically without controls and pauses outside the viewport", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("./");
-  const toggle = page.locator("#motion-toggle");
-  const scene = page.locator(".desktop-scene");
-  await scene.scrollIntoViewIfNeeded();
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#motion-toggle")).toHaveCount(0);
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
   await expect
     .poll(() =>
       page
@@ -173,22 +171,6 @@ test("ambient motion runs, can be paused, and remembers the preference", async (
         .evaluate((el) => getComputedStyle(el).transform),
     )
     .not.toBe(first);
-  await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          document.getAnimations().filter((a) => a.playState === "running")
-            .length,
-      ),
-    )
-    .toBe(0);
-  await page.reload();
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
   await page.locator("#download").scrollIntoViewIfNeeded();
   await expect
     .poll(() =>
@@ -206,80 +188,32 @@ test("ambient motion runs, can be paused, and remembers the preference", async (
     .toBe("running");
 });
 
-test("system reduced motion is respected at load and when changed", async ({
+test("reduced motion uses brief fades with no moving photograph or looping backgrounds", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");
-  const toggle = page.locator("#motion-toggle");
-  await expect(toggle).toBeEnabled();
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await expect(page.locator("#motion-toggle")).toHaveCount(0);
+  await expect(page.locator(".landscape")).toHaveCSS("animation-name", "none");
+  await expect
+    .poll(() =>
+      page.locator(".hero").evaluate((el) => ({
+        name: getComputedStyle(el, "::before").animationName,
+        iterations: getComputedStyle(el, "::before").animationIterationCount,
+        transform: getComputedStyle(el, "::before").transform,
+      })),
+    )
+    .toEqual({ name: "ambient-fade", iterations: "1", transform: "none" });
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
   await expect(page.locator("#workspace-image")).toHaveAttribute(
     "src",
     "assets/app-settings.png",
   );
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          document.getAnimations().filter((a) => a.playState === "running")
-            .length,
-      ),
-    )
-    .toBe(0);
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await expect(toggle).toBeEnabled();
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-  await page
-    .getByRole("button", { name: "Живой перевод", exact: true })
-    .click();
-  await page.getByRole("button", { name: "Настройки", exact: true }).click();
-  await expect(page.locator("#workspace-image")).toHaveAttribute(
-    "src",
-    "assets/app-settings.png",
+  await expect(page.locator(".landscape")).toHaveCSS(
+    "animation-name",
+    "landscape-drift",
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          document.getAnimations().filter((a) => a.playState === "running")
-            .length,
-      ),
-    )
-    .toBe(0);
-});
-
-test("a visitor can explicitly enable motion while their system prefers reduced motion", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("./");
-  const toggle = page.locator("#motion-toggle");
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
-  await expect
-    .poll(() =>
-      page
-        .locator(".landscape")
-        .evaluate((el) => getComputedStyle(el).animationName),
-    )
-    .toBe("landscape-drift");
-  await page.reload();
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          document.getAnimations().filter((a) => a.playState === "running")
-            .length,
-      ),
-    )
-    .toBe(0);
+  await expect(page.locator(".landscape")).toHaveCSS("animation-name", "none");
 });
