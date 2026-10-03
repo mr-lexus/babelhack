@@ -90,16 +90,16 @@ impl Config {
         if !LANGUAGES.contains(&self.source_language.as_str())
             || !LANGUAGES.contains(&self.target_language.as_str())
         {
-            return Err("РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ СЏР·С‹Рє".into());
+            return Err("Неподдерживаемый язык".into());
         }
         if self.openai_model.trim().is_empty() || self.openai_model.len() > 120 {
-            return Err("РЈРєР°Р¶РёС‚Рµ РєРѕСЂСЂРµРєС‚РЅСѓСЋ РјРѕРґРµР»СЊ OpenAI".into());
+            return Err("Укажите корректную модель OpenAI".into());
         }
         if !["nova-2", "nova-3"].contains(&self.deepgram_model.as_str()) {
-            return Err("РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РјРѕРґРµР»СЊ Deepgram".into());
+            return Err("Неподдерживаемая модель Deepgram".into());
         }
         if self.glossary.chars().count() > 4000 {
-            return Err("РЎР»РѕРІР°СЂСЊ: РЅРµ Р±РѕР»РµРµ 4000 СЃРёРјРІРѕР»РѕРІ".into());
+            return Err("Словарь: не более 4000 символов".into());
         }
         for (value, min, max) in [
             (self.overlay_opacity, 0.15, 1.0),
@@ -113,11 +113,11 @@ impl Config {
             (self.overlay_realtime_font_size, 14.0, 64.0),
         ] {
             if !value.is_finite() || !(min..=max).contains(&value) {
-                return Err("РќР°СЃС‚СЂРѕР№РєРё СЃСѓР±С‚РёС‚СЂРѕРІ РІРЅРµ РґРѕРїСѓСЃС‚РёРјРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°".into());
+                return Err("Настройки субтитров вне допустимого диапазона".into());
             }
         }
         if !(1..=8).contains(&self.overlay_lines) {
-            return Err("Р”РѕРїСѓСЃС‚РёРјРѕ РѕС‚ 1 РґРѕ 8 СЃС‚СЂРѕРє".into());
+            return Err("Допустимо от 1 до 8 строк".into());
         }
         for c in [
             &self.overlay_bg_color,
@@ -126,7 +126,7 @@ impl Config {
         ] {
             if c.len() != 7 || !c.starts_with('#') || !c[1..].bytes().all(|b| b.is_ascii_hexdigit())
             {
-                return Err("Р¦РІРµС‚ РґРѕР»Р¶РµРЅ РёРјРµС‚СЊ С„РѕСЂРјР°С‚ #RRGGBB".into());
+                return Err("Цвет должен иметь формат #RRGGBB".into());
             }
         }
         Ok(())

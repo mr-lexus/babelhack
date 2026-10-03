@@ -26,7 +26,7 @@ pub fn set_deepgram_key(k: &str) -> Result<(), String> {
         .map_err(|e| {
             log::error!("keyring: failed to save deepgram key: {e}");
             format!(
-                "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ РєР»СЋС‡ Deepgram РІ {}: {e}",
+                "Не удалось сохранить ключ Deepgram в {}: {e}",
                 crate::platform::info().credential_store
             )
         })
@@ -49,7 +49,7 @@ pub fn set_openai_key(k: &str) -> Result<(), String> {
         .map_err(|e| {
             log::error!("keyring: failed to save openai key: {e}");
             format!(
-                "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ РєР»СЋС‡ OpenAI РІ {}: {e}",
+                "Не удалось сохранить ключ OpenAI в {}: {e}",
                 crate::platform::info().credential_store
             )
         })
@@ -61,7 +61,7 @@ pub fn status() -> (bool, bool, Option<String>) {
             Ok(value) => Ok(!value.trim().is_empty()),
             Err(keyring::Error::NoEntry) => Ok(false),
             Err(e) => Err(format!(
-                "РҐСЂР°РЅРёР»РёС‰Рµ РєР»СЋС‡РµР№ РЅРµРґРѕСЃС‚СѓРїРЅРѕ ({}): {e}. Р Р°Р·Р±Р»РѕРєРёСЂСѓР№С‚Рµ РµРіРѕ Рё РїРѕРІС‚РѕСЂРёС‚Рµ СЃРѕС…СЂР°РЅРµРЅРёРµ.",
+                "Хранилище ключей недоступно ({}): {e}. Разблокируйте его и повторите сохранение.",
                 crate::platform::info().credential_store
             )),
         }
