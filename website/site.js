@@ -2,15 +2,18 @@ const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const motionToggle = document.getElementById("motion-toggle");
 const motionLabel = document.getElementById("motion-label");
 const motionStorageKey = "babelhack-site-motion";
-let motionPaused = false;
+let motionPreference = null;
 try {
-  motionPaused = localStorage.getItem(motionStorageKey) === "paused";
+  const saved = localStorage.getItem(motionStorageKey);
+  if (saved === "paused" || saved === "enabled") motionPreference = saved;
 } catch {
   /* Storage is optional. */
 }
 const activeAnimations = new Map();
-const motionAllowed = () =>
-  !reducedMotion.matches && !motionPaused && !document.hidden;
+const motionEnabled = () =>
+  motionPreference === "enabled" ||
+  (motionPreference !== "paused" && !reducedMotion.matches);
+const motionAllowed = () => motionEnabled() && !document.hidden;
 
 function animateIn(element, { delay = 0, distance = 18, duration = 650 } = {}) {
   if (!motionAllowed() || !element?.animate) return;
@@ -31,17 +34,18 @@ function animateIn(element, { delay = 0, distance = 18, duration = 650 } = {}) {
   animation.oncancel = clear;
 }
 function syncMotion() {
+  document.documentElement.dataset.motionOverride =
+    motionPreference || "system";
   document.documentElement.dataset.motion = motionAllowed() ? "on" : "off";
-  motionToggle.setAttribute(
-    "aria-pressed",
-    String(!motionPaused && !reducedMotion.matches),
-  );
-  motionToggle.disabled = reducedMotion.matches;
-  motionLabel.textContent = reducedMotion.matches
-    ? "Без анимации — настройка системы"
-    : motionPaused
-      ? "Анимация выключена"
-      : "Анимация включена";
+  motionToggle.setAttribute("aria-pressed", String(motionEnabled()));
+  motionToggle.title = motionEnabled()
+    ? "Выключить анимацию на сайте"
+    : "Включить анимацию на сайте";
+  motionLabel.textContent = motionEnabled()
+    ? "Анимация включена"
+    : reducedMotion.matches && !motionPreference
+      ? "Включить анимацию · сейчас выключена системой"
+      : "Анимация выключена";
   if (!motionAllowed()) {
     activeAnimations.forEach((animation) => animation.cancel());
     activeAnimations.clear();
@@ -49,9 +53,9 @@ function syncMotion() {
 }
 motionToggle.hidden = false;
 motionToggle.addEventListener("click", () => {
-  motionPaused = !motionPaused;
+  motionPreference = motionEnabled() ? "paused" : "enabled";
   try {
-    localStorage.setItem(motionStorageKey, motionPaused ? "paused" : "enabled");
+    localStorage.setItem(motionStorageKey, motionPreference);
   } catch {
     /* Keep the in-memory preference. */
   }

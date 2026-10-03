@@ -1538,12 +1538,12 @@ html[data-motion="off"] *::after {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html:not([data-motion-override="enabled"]) {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion-override="enabled"]) *,
+  html:not([data-motion-override="enabled"]) *::before,
+  html:not([data-motion-override="enabled"]) *::after {
     transition: none !important;
     animation: none !important;
   }

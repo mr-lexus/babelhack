@@ -212,7 +212,8 @@ test("system reduced motion is respected at load and when changed", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("./");
   const toggle = page.locator("#motion-toggle");
-  await expect(toggle).toBeDisabled();
+  await expect(toggle).toBeEnabled();
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
   await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
   await expect(page.locator("#workspace-image")).toHaveAttribute(
@@ -240,6 +241,37 @@ test("system reduced motion is respected at load and when changed", async ({
     "assets/app-settings.png",
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document.getAnimations().filter((a) => a.playState === "running")
+            .length,
+      ),
+    )
+    .toBe(0);
+});
+
+test("a visitor can explicitly enable motion while their system prefers reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("./");
+  const toggle = page.locator("#motion-toggle");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-motion", "on");
+  await expect
+    .poll(() =>
+      page
+        .locator(".landscape")
+        .evaluate((el) => getComputedStyle(el).animationName),
+    )
+    .toBe("landscape-drift");
+  await page.reload();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await toggle.click();
   await expect(page.locator("html")).toHaveAttribute("data-motion", "off");
   await expect
     .poll(() =>
